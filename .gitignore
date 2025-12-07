@@ -1,0 +1,23 @@
+# Environment files
+.env
+chatbot/.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Database
+db.sqlite3
+
+# VSCode settings
+.vscode/
+
+# Django specific
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.egg-info/
