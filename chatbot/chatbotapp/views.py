@@ -6,7 +6,7 @@ import os
 
 import google.generativeai as genai   # ✅ Correct import
 import google.generativeai as genai
-genai.configure(api_key="***aSyA1mWeDs-***EWQTGAK6E3Bbh4X*********")
+genai.configure(api_key="AIzaSyC8DvVwhAMBtGyRTaqPU2LWy8yAdI0iQxk")
 
 
 for m in genai.list_models():
