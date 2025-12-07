@@ -1,0 +1,471 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="icon" type="image/png" href="{% static 'images/tech2.png' %}">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fff; /* pure white background */
+            color: #000;      /* black text */
+            margin: 0;
+            padding: 0;
+        }
+        .logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+    animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+        /* Splash screen styles */
+#splash-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(to bottom right, #fbf9f9, #f7f7f5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeOut 2s ease-in-out 3s forwards;
+    font-family: Georgia;
+    font-size: 60px;
+    font-weight: bold;
+    color: #000;
+    letter-spacing: 2px;
+    
+}
+.splash-box {
+    border: 2px solid black;
+    border-radius: 12px;
+    padding: 30px 40px;
+    text-align: center;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    animation: boxFade 1.5s ease-in-out;
+}
+@keyframes boxFade {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+
+
+#splash-screen span {
+    color: #dc0921; /* Stylish purple for "AI" */
+    font-family: Lucida Handwriting;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgb(242, 4, 4);
+    text-align: center;
+}
+
+@keyframes glow {
+    0% { text-shadow: 0 0 5px #b40606; }
+    50% { text-shadow: 0 0 20px #be0404; }
+    100% { text-shadow: 0 0 5px #be0404; }
+}
+
+#splash-screen span {
+    animation: glow 2s infinite;
+}
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .main-layout {
+            display: flex;
+            max-width: 100%;
+            margin: 40px auto;
+            gap: 20px;
+            padding: 20px 40px;
+            padding-bottom: 20px;
+        }
+
+        #history {
+            width: 300px;
+            background: rgba(0,0,0,0.05); /* light black overlay */
+            padding: 20px;
+            border-radius: 16px;
+            height: 710px;
+            overflow-y: auto;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.1);
+        }
+
+        #history h3 {
+            margin-bottom: 15px;
+            font-size: 20px;
+            color: #000;
+        }
+
+        #history ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #history li {
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #history li small {
+            display: block;
+            font-size: 12px;
+            color: #555; /* dark gray */
+            margin-top: 4px;
+        }
+
+        #history li:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        #clear-btn {
+            margin-top: 15px;
+            background: #000;  /* black button */
+            color: #fff;       /* white text */
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        #chat-container {
+            flex: 1;
+            width: 100%; /* ← Add this line */
+            
+
+            background: rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.1);
+            
+        }
+
+        #header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #chatbox {
+            border: none;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        #chatbox p {
+            margin: 8px 0;
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        #chatbox p b {
+            color: #000; /* bold text black */
+        }
+
+        #input-section {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 30px;
+            padding: 10px;
+        }
+
+        #user_input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+            color: #000;
+            font-size: 16px;
+            outline: none;
+        }
+
+        #send {
+            background: #000;  /* black button */
+            color: #fff;       /* white text */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #send:hover {
+            background: #333; /* dark gray hover */
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .action-buttons button {
+            background: rgba(0, 0, 0, 0.1);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .action-buttons button:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .spinner {
+    border: 4px solid #f3f3f3;   /* Light gray */
+    border-top: 4px solid #000;  /* Black */
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.creator {
+    position: absolute;
+    padding-top: 7%;
+    font-size: 25px;
+    font-family: Georgia;
+    color: #020000;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.footer-credit {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    margin-top: 30px;
+    font-style: italic;
+}
+.stop-button {
+    background-color: #dc0921;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    display: none; /* hidden until bot starts typing */
+}
+
+
+    </style>
+</head>
+
+<body>
+  
+<!-- Splash Screen -->
+<div id="splash-screen">
+    <div class="splash-box">
+        <img src="{% static 'images/tech.png' %}" alt="Chatbot Logo" class="logo">
+        <div class="splash-title">Chatbot <span>AI</span></div>
+    </div>
+</div>
+
+    
+
+    <!-- Main Content -->
+    <div id="main-content" style="display:none;">
+        <div class="main-layout">
+            <!-- Sidebar History -->
+            <div id="history">
+                <h3>Chat History</h3>
+                <ul>
+                    {% for msg in history %}
+                        <li onclick="loadMessage('{{ msg.user_message }}')">
+                            {{ msg.user_message|truncatechars:30 }}
+                            <small>{{ msg.timestamp|date:"d M, h:i A" }}</small>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button id="clear-btn" onclick="clearHistory()">Clear History</button>
+            </div>
+
+            <!-- Chat UI -->
+            <div id="chat-container">
+                <div id="header">Hi Aakash 👋 <br><span style="font-weight:normal;">Where should we start?</span></div>
+
+                <div id="chatbox"></div>
+                <div id="loading" style="display:none;">
+                     <p><b>Bot:</b> <span class="spinner"></span> Bot is Analyzing...</p>
+                </div>
+
+
+                <div id="input-section">
+                    <input type="text" id="user_input" placeholder="Ask Anything...">
+                    <button id="stop-btn" class="stop-button">⏹ Stop</button>
+                    <button id="send">Send</button>
+                    <span id="mic-btn" style="margin-left:10px;cursor:pointer;">🎤</span>
+                </div>
+
+                <div class="action-buttons">
+                    <button>Create image</button>
+                    <button>Create video</button>
+                    <button>Write anything</button>
+                    <button>Help me learn</button>
+                    <button>Boost my day</button>
+                </div>
+                <div class="footer-credit">Made with ❤️ by Aakash Chandrakant Mulik</div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let typingInterval = null; // global reference for stopping
+    let isTyping = false;
+
+    // Typing animation for bot response (interruptible)
+    function typeBotResponse(text) {
+        let i = 0;
+        const typedSpan = $('<span id="typing"></span>');
+        const botLine = $('<p><b>Bot:</b> </p>').append(typedSpan);
+        $('#chatbox').append(botLine);
+
+        $('#stop-btn').show(); // show stop button
+        isTyping = true;
+
+        typingInterval = setInterval(() => {
+            if (i < text.length) {
+                typedSpan.text(text.slice(0, i + 1));
+                $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+                i++;
+            } else {
+                clearInterval(typingInterval);
+                typedSpan.removeAttr('id');
+                $('#stop-btn').hide();
+                isTyping = false;
+            }
+        }, 30);
+    }
+
+    // Stop button logic
+    $('#stop-btn').click(function() {
+        if (isTyping && typingInterval) {
+            clearInterval(typingInterval);
+            $('#typing').removeAttr('id');
+            $('#stop-btn').hide();
+            isTyping = false;
+        }
+    });
+
+    // Fade in chatbot UI after splash
+    setTimeout(function() {
+        document.getElementById('splash-screen').style.display = 'none';
+        const main = document.getElementById('main-content');
+        main.style.opacity = 0;
+        main.style.display = 'block';
+        let opacity = 0;
+        const fade = setInterval(() => {
+            if (opacity < 1) {
+                opacity += 0.05;
+                main.style.opacity = opacity;
+            } else {
+                clearInterval(fade);
+            }
+        }, 50);
+    }, 5000); // 5 seconds
+
+    // Send message with spinner
+    $('#send').click(function(){
+        var msg = $('#user_input').val();
+        if(msg.trim() === '') return;
+
+        $('#chatbox').append('<p><b>You:</b> ' + msg + '</p>');
+        $('#chatbox').append('<p id="loading"><b>Bot:</b> <span class="spinner"></span> Bot is thinking...</p>');
+
+        $.get('/get-response/', { msg: msg }, function(data){
+            $('#loading').remove();
+            typeBotResponse(data.bot_response);
+            $('#user_input').val('');
+        });
+    });
+
+    // Load message from history
+    function loadMessage(msg) {
+        document.getElementById('user_input').value = msg;
+    }
+
+    // Voice input using Web Speech API
+    const micBtn = document.getElementById('mic-btn');
+    const userInput = document.getElementById('user_input');
+
+    let recognition;
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = function() {
+            micBtn.textContent = "🎙️";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            userInput.value = transcript;
+        };
+
+        recognition.onerror = function(event) {
+            console.error("Speech recognition error:", event.error);
+        };
+
+        recognition.onend = function() {
+            micBtn.textContent = "🎤";
+        };
+
+        micBtn.addEventListener('click', () => {
+            recognition.start();
+        });
+    } else {
+        micBtn.style.display = "none";
+        console.warn("Web Speech API not supported in this browser.");
+    }
+
+    // Clear history
+    function clearHistory() {
+        if(confirm("Are you sure you want to clear all history?")) {
+            $.get('/clear-history/', function(data){
+                if(data.status === 'cleared') {
+                    $('#history ul').html('');
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>
